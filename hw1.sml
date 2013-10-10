@@ -39,7 +39,7 @@ fun dates_in_months(dates: (int * int * int) list, months: int list) =
     then []
     else dates_in_month(dates, hd months) @ dates_in_months(dates, tl months);
 
-fun get_nth(items: string list, n: int) =
+fun get_nth(items: 'a list, n: int) =
     if n = 1
     then hd items
     else get_nth(tl items, n - 1);
@@ -87,3 +87,35 @@ fun oldest(dates: (int * int * int) list) =
 		    end
 	in SOME(oldest_nonempty dates)
 	end;
+
+
+fun delete(item, []) = []
+  | delete(item, head::tail) =
+    if item = head
+    then delete(item, tail)
+    else head::(delete(item, tail))
+
+fun remove_duplicates([]) = []
+  | remove_duplicates(head::tail) =
+    head::remove_duplicates(delete(head, tail))
+
+fun number_in_months_challenge(dates: (int * int * int) list, months: int list) =
+    number_in_months(dates, remove_duplicates(months))
+
+fun dates_in_months_challenge(dates: (int * int * int) list, months: int list) =
+    dates_in_months(dates, remove_duplicates(months));
+
+fun reasonable_date(date: (int * int * int)) =
+    let
+	fun is_leap_year(year: int) =
+	    (year mod 400 = 0) orelse (year mod 4 = 0 andalso year mod 100 <> 0)
+	val days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    in
+	(#1 date > 0)
+	andalso (#2 date > 0 andalso #2 date <= 12)
+	andalso
+	    if is_leap_year(#1 date) andalso #2 date = 2
+	    then #3 date > 0 andalso #3 date <= get_nth(days, #2 date) + 1
+	    else #3 date > 0 andalso #3 date <= get_nth(days, #2 date)
+    end;
+				  

@@ -26,3 +26,13 @@ val test9 = what_month(70) = 3
 val test10 = month_range(31, 34) = [1,2,2,2]
 
 val test11 = oldest([(2012,2,28),(2011,3,31),(2011,4,28)]) = SOME (2011,3,31)
+
+val test12 = number_in_months_challenge([(2012,2,28),(2013,12,1),(2011,3,31),(2011,4,28)],[2,3,4,2,3,4,4,3,2,2,3,4]) = 3
+
+val test13 = dates_in_months_challenge([(2012,2,28),(2013,12,1),(2011,3,31),(2011,4,28)],[2,3,4,2,3,4,4,3,2,3,2,3,2,3,4,4,4,2,3,2]) = [(2012,2,28),(2011,3,31),(2011,4,28)]
+
+val test14 = reasonable_date (1988, 7, 26) = true
+val test15 = reasonable_date (2000, 2, 29) = true
+val test16 = reasonable_date (0, 2, 3) = false
+val test17 = reasonable_date (1999, 2, 29) = false
+val test18 = reasonable_date (2013, 10, 32) = false

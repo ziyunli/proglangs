@@ -92,7 +92,7 @@ fun card_color(card) =
 fun card_value(card) =
     case card of
 	(_, Ace) => 11
-      | (_, Num(x)) => x
+      | (_, Num x) => x
       | _ => 10
 
 fun remove_card(cs, c, e) =
@@ -147,3 +147,84 @@ fun officiate(card_list, move_list, goal) =
 	take_turn(card_list, [], move_list)
     end
     
+fun score_challenge(held_cards, goal) =
+    let
+	val is_same_color = all_same_color(held_cards)
+
+	fun calculate_score_from_sum(sum) =
+	    let
+		val prel_score = if sum > goal
+				 then 3 * (sum - goal)
+				 else goal - sum
+	    in
+		if is_same_color
+		then prel_score div 2
+		else prel_score
+	    end
+	    
+	fun find_optimal_score_acc(acc, cards) =
+	    case cards of
+		[] => calculate_score_from_sum(acc)
+	      | (_, Ace)::remain_cards => Int.min(find_optimal_score_acc(acc + 1, remain_cards), find_optimal_score_acc(acc + 11, remain_cards))
+	      | hd_card::remain_cards => find_optimal_score_acc(acc + card_value hd_card, remain_cards)
+    in
+	find_optimal_score_acc(0, held_cards)
+    end
+
+fun officiate_challenge(card_list, move_list, goal) =
+    let
+	fun sum_cards_challenge(cs) =
+	    let
+		fun sum_cards_acc(acc, list) =
+		    case list of
+			[] => acc
+		      | (_, Ace)::tl => sum_cards_acc(acc + 1, tl)
+		      | card::tl => sum_cards_acc(acc + card_value card, tl) 
+	    in
+		sum_cards_acc(0, cs)
+	    end
+	
+	fun take_turn(curr_cards, curr_hands, moves) =
+	    if sum_cards_challenge curr_hands > goal
+	    then score_challenge(curr_hands, goal)
+	    else
+		case moves of
+		    [] => score_challenge(curr_hands, goal)
+		  | Discard(card)::remain_moves => take_turn(curr_cards, remove_card(curr_hands, card, IllegalMove), remain_moves)
+		  | Draw::remain_moves => case curr_cards of
+					      [] => score_challenge(curr_hands, goal)
+					    | hd_card::remain_cards => take_turn(remain_cards, hd_card::curr_hands, remain_moves)		    
+    in
+	take_turn(card_list, [], move_list)
+    end   
+
+fun careful_player(cs, goal) =
+    let
+	fun take_turn(curr_cards, curr_hands) =
+	    let
+		val sum = sum_cards(curr_hands)
+				   
+		fun find_card(cs, num) =
+		    case cs of
+			[] => NONE
+		      | (s, Ace)::tl => if num = 11 then SOME(s, Ace) else find_card(tl, num) 
+		      | (s, Num x)::tl => if num = x then SOME(s, Num x) else find_card(tl, num)
+		      | card::tl => if num = 10 then SOME card else find_card(tl, num)
+	    in
+		case curr_cards of
+		    [] => []
+		  | hd_card::remain_cards =>
+		    let
+			val card = find_card(curr_hands, sum + card_value hd_card - goal)
+		    in
+			case card of
+			    SOME card => [Discard card, Draw]
+			  | NONE => if sum + 10 < goal
+				    then Draw::take_turn(remain_cards, hd_card::curr_hands)
+				    else []
+		    end
+	    end
+    in
+	take_turn(cs, [])
+    end						
+								     

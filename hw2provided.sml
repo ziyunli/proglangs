@@ -134,13 +134,18 @@ fun score(held_cards, goal) =
 fun officiate(card_list, move_list, goal) =
     let
 	fun take_turn(curr_cards, curr_hands, moves) =
-	    case moves of
-		[] => score(curr_hands, goal)
-	      | Discard(card)::remain_moves => take_turn(curr_cards, remove_card(curr_hands, card, IllegalMove), remain_moves)
-	      | Draw::remain_moves => case curr_cards of
-					  [] => score(curr_hands, goal)
-					| hd_card::remain_cards => take_turn(remain_cards, hd_card::curr_hands, remain_moves)		    
+	    if sum_cards curr_cards > goal
+	    then score(curr_cards, goal)
+	    else
+		case moves of
+		    [] => score(curr_hands, goal)
+		  | Discard(card)::remain_moves => take_turn(curr_cards, remove_card(curr_hands, card, IllegalMove), remain_moves)
+		  | Draw::remain_moves => case curr_cards of
+					      [] => score(curr_hands, goal)
+					    | hd_card::remain_cards => take_turn(remain_cards, hd_card::curr_hands, remain_moves)		    
     in
 	take_turn(card_list, [], move_list)
     end
+
+
     

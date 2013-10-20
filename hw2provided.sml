@@ -134,8 +134,8 @@ fun score(held_cards, goal) =
 fun officiate(card_list, move_list, goal) =
     let
 	fun take_turn(curr_cards, curr_hands, moves) =
-	    if sum_cards curr_cards > goal
-	    then score(curr_cards, goal)
+	    if sum_cards curr_hands > goal
+	    then score(curr_hands, goal)
 	    else
 		case moves of
 		    [] => score(curr_hands, goal)
@@ -146,6 +146,4 @@ fun officiate(card_list, move_list, goal) =
     in
 	take_turn(card_list, [], move_list)
     end
-
-
     

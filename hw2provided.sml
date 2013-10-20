@@ -17,7 +17,7 @@ fun all_except_option(str, lst) =
 				else delete(curr::acc, remine)
     in
 	delete([], lst)
-    end;
+    end
 	
 fun get_substitutions1(str_lists, s) =
     case str_lists of
@@ -47,13 +47,28 @@ fun get_substitutions2(str_lists, s) =
 				NONE => []
 			      | SOME lst => lst
 		    in
-			substitutions_acc(res @ acc, remine)
+			substitutions_acc(acc @ res, remine)
 		    end
 	in
 	    substitutions_acc([], str_lists)
-	end;
-		  
-			    
+	end
+
+type full_name = {
+    first : string,
+    middle: string,
+    last: string }
+
+fun similar_names(str_lists, fullname) =
+    let
+	val { first = x, middle = m, last = y } = fullname
+	fun generate_fullname(subsitutions) =
+	    case subsitutions of
+		[] => []
+	      | hd::tl => { first = hd, middle = m, last = y } :: generate_fullname(tl)
+    in
+	fullname :: generate_fullname(get_substitutions2(str_lists, x))
+    end
+					    
 		      
 (* you may assume that Num is always used with values 2, 3, ..., 10
    though it will not really come up *)

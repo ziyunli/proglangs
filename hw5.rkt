@@ -21,6 +21,14 @@
 (struct closure (env fun) #:transparent) 
 
 ;; Problem 1
+(define (racketlist->mupllist xs)
+  (cond [(null? xs) (aunit)]
+        [(apair (car xs) (racketlist->mupllist (cdr xs)))]))
+
+(define (mupllist->racketlist pairs)
+  (cond [(aunit? pairs) null]
+        [(cons (apair-e1 pairs) (mupllist->racketlist (apair-e2 pairs)))]))
+        
 
 ;; CHANGE (put your solutions here)
 

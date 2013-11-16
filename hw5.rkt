@@ -46,8 +46,14 @@
 ;; We will test eval-under-env by calling it directly even though
 ;; "in real life" it would be a helper function of eval-exp.
 (define (eval-under-env e env)
+  ;; CHANGE add more cases here
   (cond [(var? e) 
          (envlookup env (var-string e))]
+        [(int? e) (if (number? (int-num e)) 
+                      e
+                      (error "MUPL int applied to non-number"))]
+        [(aunit? e) e]
+        [(closure? e) e] 
         [(add? e) 
          (let ([v1 (eval-under-env (add-e1 e) env)]
                [v2 (eval-under-env (add-e2 e) env)])
@@ -56,10 +62,6 @@
                (int (+ (int-num v1) 
                        (int-num v2)))
                (error "MUPL addition applied to non-number")))]
-        ;; CHANGE add more cases here
-        [(int? e) (if (number? (int-num e)) 
-                      e
-                      (error "MUPL int applied to non-number"))]
         [(ifgreater? e)
          (let ([v1 (eval-under-env (ifgreater-e1 e) env)]
                [v2 (eval-under-env (ifgreater-e2 e) env)])
@@ -75,8 +77,8 @@
            (eval-under-env (mlet-body e) (cons (cons name v) env)))]
         [(fun? e) (closure env e)]
         [(call? e)
-         (if (closure? (call-funexp e))
-             (let* ([f-closure (call-funexp e)]
+         (if (closure? (eval-under-env (call-funexp e) env))
+             (let* ([f-closure (eval-under-env (call-funexp e) env)]
                     [f-env (closure-env f-closure)]
                     [func (closure-fun f-closure)]
                     [f-name (fun-nameopt func)])
@@ -96,11 +98,7 @@
         [(apair? e)
          (let ([v1 (eval-under-env (apair-e1 e) env)]
                [v2 (eval-under-env (apair-e2 e) env)])
-           (if (and (int? v1)
-                    (int? v2))
-               (apair v1 v2)
-               (error (format "MUPL apair applied to non-number: ~v; ~v" v1 v2))))]
-        
+           (apair v1 v2))]
         [(fst? e)
          (let ([v (eval-under-env (fst-e e) env)])
            (if (apair? v)
@@ -116,7 +114,6 @@
            (if (aunit? v)
                (int 1)
                (int 0)))]
-        [(closure? e) e]
         [#t (error (format "bad MUPL expression: ~v" e))]))
 
 ;; Do NOT change
@@ -125,7 +122,8 @@
         
 ;; Problem 3
 
-(define (ifaunit e1 e2 e3) "CHANGE")
+(define (ifaunit e1 e2 e3) 
+  (if (isaunit? e1) e2 e3))
 
 (define (mlet* lstlst e2) "CHANGE")
 

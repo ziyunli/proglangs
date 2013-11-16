@@ -73,8 +73,50 @@
          (let ([name (mlet-var e)]
                [v (eval-under-env (mlet-e e) env)])
            (eval-under-env (mlet-body e) (cons (cons name v) env)))]
+        [(fun? e) (closure env e)]
+        [(call? e)
+         (if (closure? (call-funexp e))
+             (let* ([f-closure (call-funexp e)]
+                    [f-env (closure-env f-closure)]
+                    [func (closure-fun f-closure)]
+                    [f-name (fun-nameopt func)])
+               (if f-name
+                   (eval-under-env 
+                    (fun-body func) 
+                    (cons (cons f-name f-closure) 
+                          (cons (cons (fun-formal func) 
+                                      (eval-under-env (call-actual e) env))
+                                f-env)))
+                   (eval-under-env
+                    (fun-body func)
+                    (cons (cons (fun-formal func)
+                                (eval-under-env (call-actual e) env))
+                          f-env))))
+             (error (format "MUPL call applied to non-closure: ~v" (call-funexp e))))]
+        [(apair? e)
+         (let ([v1 (eval-under-env (apair-e1 e) env)]
+               [v2 (eval-under-env (apair-e2 e) env)])
+           (if (and (int? v1)
+                    (int? v2))
+               (apair v1 v2)
+               (error (format "MUPL apair applied to non-number: ~v; ~v" v1 v2))))]
         
-        
+        [(fst? e)
+         (let ([v (eval-under-env (fst-e e) env)])
+           (if (apair? v)
+               (apair-e1 v)
+               (error (format "MUPL fst applied to non-pair: ~v; ~v" v))))]
+        [(snd? e)
+         (let ([v (eval-under-env (snd-e e) env)])
+           (if (apair? v)
+               (apair-e2 v)
+               (error (format "MUPL fst applied to non-pair: ~v; ~v" v))))]
+        [(isaunit? e)
+         (let ([v (eval-under-env (isaunit-e e) env)])
+           (if (aunit? v)
+               (int 1)
+               (int 0)))]
+        [(closure? e) e]
         [#t (error (format "bad MUPL expression: ~v" e))]))
 
 ;; Do NOT change

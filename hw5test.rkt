@@ -44,14 +44,60 @@
    (check-equal? (eval-exp (ifeq (int 1) (int 2) (int 3) (int 4))) (int 4) "ifeq test")
    
    ;; mupl-map test
-;   (check-equal? (eval-exp (call (call mupl-map (fun #f "x" (add (var "x") (int 7)))) (apair (int 1) (aunit)))) 
-;                 (apair (int 8) (aunit)) "mupl-map test")
+   (check-equal? (eval-exp (call (call mupl-map (fun #f "x" (add (var "x") (int 7)))) (apair (int 1) (aunit)))) 
+                 (apair (int 8) (aunit)) "mupl-map test")
    
    ;; problems 1, 2, and 4 combined test
-   ;(check-equal? (mupllist->racketlist
-   ;(eval-exp (call (call mupl-mapAddN (int 7))
-   ;                (racketlist->mupllist 
-   ;                 (list (int 3) (int 4) (int 9)))))) (list (int 10) (int 11) (int 16)) "combined test")
+   (check-equal? (mupllist->racketlist
+   (eval-exp (call (call mupl-mapAddN (int 7))
+                   (racketlist->mupllist 
+                    (list (int 3) (int 4) (int 9)))))) (list (int 10) (int 11) (int 16)) "combined test")
+   
+   ;; test cases for compute-free-vars
+   (check-equal? (fun-challenge-freevars
+                  (compute-free-vars (fun #f "_" (add (add (var "x") (var "y")) (var "z")))))
+                 (set "x" "y" "z"))
+   (check-equal? (fun-challenge-freevars
+                  (compute-free-vars (fun #f "x" (add (add (var "x") (var "y")) (var "z")))))
+                 (set "y" "z"))
+   (check-equal? (fun-challenge-freevars
+                  (compute-free-vars (fun #f "x" (ifgreater (var "x") (aunit) (var "y") (var "z")))))
+                 (set "y" "z"))
+   (check-equal? (fun-challenge-freevars
+                  (compute-free-vars (fun #f "x"
+                                          (mlet "y" (int 0) (add (add (var "x") (var "y")) (var "z"))))))
+                 (set "z"))
+   (check-equal? (fun-challenge-freevars
+                  (compute-free-vars (fun #f "x" (fun #f "y" (fun #f "z"
+                                                                  (add (add (var "x") (var "y")) (var "z")))))))
+                 (set))
+   (check-equal? (fun-challenge-freevars
+                  (compute-free-vars (fun #f "x" 
+                                          (add (var "y")
+                                               (mlet "y" (var "z") (add (var "y") (var "y")))))))
+                 (set "y" "z"))
+   (check-equal? (fun-challenge-freevars
+                  (compute-free-vars (fun #f "x" (mlet "y"
+                                                       (add (var "y") (var "x"))
+                                                       (var "y")))))
+                 (set "y"))
+   (check-equal? (fun-challenge-freevars
+                  (compute-free-vars (fun #f "x" (apair (mlet "y" (int 0) (add (var "y") (var "x")))
+                                                        (var "y")))))
+                 (set "y"))
+   (check-equal? (fun-challenge-freevars
+                  (compute-free-vars (fun #f "x" (ifgreater (var "x")
+                                                            (int 0)
+                                                            (mlet "y" (int 1) (add (var "y") (int 1)))
+                                                            (var "y")))))
+                 (set "y"))
+   (check-equal? (fun-challenge-freevars
+                  (compute-free-vars (fun #f "x" (ifgreater (var "x")
+                                                            (int 0)
+                                                            (mlet "y" (var "z") (add (var "y") (int 1)))
+                                                            (mlet "z" (var "y") (add (var "z") (int 1)))))))
+                 (set "y" "z"))
+   
    
    )
 )

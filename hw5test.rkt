@@ -98,6 +98,55 @@
                                                             (mlet "z" (var "y") (add (var "z") (int 1)))))))
                  (set "y" "z"))
    
+   ;(compute-free-vars (call (fun "f" "x" (var "f")) (var "f")))
+   ;(call (fun-challenge "f" "x" (var "f") (set)) (var "f"))
+   
+   ;(compute-free-vars (fun #f "x" (fun #f "y" (var "p"))))
+   ;(fun-challenge #f "x" (fun-challenge #f "y" (var "p") (set "p")) (set "p"))
+   
+;   (compute-free-vars
+;                   (mlet "x" (int 1) 
+;                         (call
+;                          (fun #f "a"
+;                               (mlet "g" (fun #f "b" 
+;                                              (ifgreater (var "b") (var "x") 
+;                                                         (add (var "b")
+;                                                              (call (var "g")
+;                                                                    (add (int -1)
+;                                                                         (var "b"))))
+;                                                         (var "x")))
+;                                     (call (var "g") (var "a"))))
+;                          (int 10))))
+;   
+;   (mlet "x" (int 1)
+;      (call
+;       (fun-challenge #f "a"
+;                      (mlet "g" (fun-challenge #f "b"
+;                                               (ifgreater (var "b") (var "x")
+;                                                          (add (var "b")
+;                                                               (call (var "g")
+;                                                                     (add (int -1) (var "b"))))
+;                                                          (var "x"))
+;                                               (set "g" "x"))
+;                            (call (var "g") (var "a")))
+;                      (set "g" "x"))
+;       (int 10)))
+   
+    (check-equal? (eval-exp-c (call (fun "sum-1-n" "arg" 
+                                        (ifgreater (var "arg") (int 1)
+                                                   (add (var "arg") 
+                                                        (call 
+                                                         (var "sum-1-n") 
+                                                         (add (var "arg") (int -1))))
+                                                   (var "arg")))
+                                   (int 4))) (int 10) "call test 4")
+    
+    (check-equal? (eval-exp-c (call (fun "fib" "n"
+                                         (call (call (call (fun "aux" "n0" (fun #f "a" (fun #f "b"
+                                                                                            (ifgreater (add (var "n0") (int 1)) (var "n")
+                                                                                                       (var "a")
+                                                                                                       (call (call (call (var "aux") (add (var "n0") (int 1))) (var "b")) (add (var "a") (var "b")))))))
+                                                           (int 0)) (int 0)) (int 1))) (int 7))) (int 13) "call test 5")
    
    )
 )

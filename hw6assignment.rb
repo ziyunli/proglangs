@@ -16,6 +16,8 @@ class MyPiece < Piece
                 rotations([[0, 0], [1, 0], [0, 1]])
               ]
 
+  Cheat_Piece = [[[0, 0]]]
+
   # your enhancements here
 
   def initialize (point_array, board)
@@ -31,6 +33,10 @@ class MyPiece < Piece
     MyPiece.new(All_My_Pieces.sample, board)
   end
 
+  def self.cheat_piece(board)
+    MyPiece.new(Cheat_Piece, board)
+  end
+
 end
 
 class MyBoard < Board
@@ -41,6 +47,7 @@ class MyBoard < Board
     @score = 0
     @game = game
     @delay = 500
+    @cheat = false
   end
 
   # your enhancements here
@@ -51,7 +58,14 @@ class MyBoard < Board
 
   # gets the next piece
   def next_piece
-    @current_block = MyPiece.next_piece(self)
+    if (@cheat)
+      @cheat = false
+      @score -= 100
+      @current_block = MyPiece.cheat_piece(self)
+    else
+      @current_block = MyPiece.next_piece(self)
+    end
+
     @current_pos = nil
   end
 
@@ -69,6 +83,13 @@ class MyBoard < Board
     remove_filled
     @delay = [@delay - 2, 80].max
   end
+
+  def cheat_next
+    if @score > 100
+      @cheat = true
+    end
+  end
+
 end
 
 class MyTetris < Tetris
@@ -85,6 +106,7 @@ class MyTetris < Tetris
   def key_bindings
     super
     @root.bind('u', proc {@board.rotate_180})
+    @root.bind('c', proc {@board.cheat_next})
   end
 end
 

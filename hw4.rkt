@@ -5,8 +5,8 @@
 ;; put your code below
 
 ; 1
-(define (sequence low high stride) 
-  (if (> low high) 
+(define (sequence low high stride)
+  (if (> low high)
       null
       (cons low (sequence (+ low stride) high stride))))
 
@@ -26,17 +26,18 @@
 (define (stream-for-n-steps s n)
   (if (= n 0)
       null
-      (cons (car (s)) (stream-for-n-steps (cdr (s)) (- n 1)))))
+      (let ([next (s)])
+        (cons (car next) (stream-for-n-steps (cdr next) (- n 1))))))
 
 ; 5
 (define funny-number-stream
-  (letrec ([f (lambda (x) (if (= 0 (modulo x 5)) 
+  (letrec ([f (lambda (x) (if (= 0 (modulo x 5))
                               (cons (- 0 x) (lambda () (f (+ x 1))))
                               (cons x (lambda () (f (+ x 1))))))])
     (lambda () (f 1))))
-  
+
 ; 6
-(define dan-then-dog 
+(define dan-then-dog
   (let ([f (lambda () (cons "dan.jpg" (lambda () (cons "dog.jpg" dan-then-dog))))])
     (lambda () (f))))
 
@@ -45,13 +46,13 @@
   (let* ([r (s)]
          [f (lambda () (cons (cons 0 (car r)) (stream-add-zero (cdr r))))])
     (lambda () (f))))
-  
+
 ; 8
 (define (cycle-lists xs ys)
   (letrec ([f (lambda (x) (cons (cons (list-nth-mod xs x) (list-nth-mod ys x))
                               (lambda () (f (+ x 1)))))])
     (lambda () (f 0))))
-  
+
 ; 9
 (define (vector-assoc v vec)
   (letrec ([f (lambda (pos) (cond [(not (< pos (vector-length vec))) #f]
@@ -59,12 +60,12 @@
                                   [(equal? v (car (vector-ref vec pos))) (vector-ref vec pos)]
                                   [#t (f (+ pos 1))]))])
     (f 0)))
-  
+
 ; 10
 (define (cached-assoc xs n)
   (letrec ([cache (make-vector n #f)]
            [curr 0]
-           [f (lambda (v) 
+           [f (lambda (v)
                 (let ([cached-ans (vector-assoc v cache)])
                   (if cached-ans
                       cached-ans
@@ -73,8 +74,8 @@
                                (set! curr (remainder (+ curr 1) n))
                                ans)))))])
     f))
-      
-    
+
+
 
 ; 11
 (define-syntax while-less
@@ -84,6 +85,5 @@
               [c2 (lambda () e2)]
               [f (lambda (th) (if (> c1 (th)) (f th) #t))])
        (f c2))]))
-           
-       
-       
+
+

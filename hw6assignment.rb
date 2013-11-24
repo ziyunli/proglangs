@@ -12,7 +12,8 @@ class MyPiece < Piece
                   [[0, 0], [-2, 0], [-1, 0], [1, 0], [2, 0]], # extra long (two cases)
                   [[0, 0], [0, -2], [0, -1], [0, 1], [0, 2]]
                 ],
-                rotations([[0, 0], [1, 0], [0, 1], [1, 1], [2, 0]]),
+                rotations([[0, 0], [1, 0], [0, 1], [1, 1], [2, 1]]),
+                # [[[0, 0], [1, 0], [0, 1], [1, 1], [2, 1]]],
                 rotations([[0, 0], [1, 0], [0, 1]])
               ]
 
@@ -85,7 +86,7 @@ class MyBoard < Board
   end
 
   def cheat_next
-    if @score > 100
+    if @score >= 100
       @cheat = true
     end
   end

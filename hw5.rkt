@@ -77,24 +77,18 @@
            (eval-under-env (mlet-body e) (cons (cons name v) env)))]
         [(fun? e) (closure env e)]
         [(call? e)
-         (if (closure? (eval-under-env (call-funexp e) env))
-             (let* ([f-closure (eval-under-env (call-funexp e) env)]
-                    [f-env (closure-env f-closure)]
-                    [func (closure-fun f-closure)]
-                    [f-name (fun-nameopt func)])
-               (if f-name
-                   (eval-under-env 
-                    (fun-body func) 
-                    (cons (cons f-name f-closure) 
-                          (cons (cons (fun-formal func) 
-                                      (eval-under-env (call-actual e) env))
-                                f-env)))
-                   (eval-under-env
-                    (fun-body func)
-                    (cons (cons (fun-formal func)
-                                (eval-under-env (call-actual e) env))
-                          f-env))))
-             (error (format "MUPL call applied to non-closure: ~v" (call-funexp e))))]
+         (let ([cl (eval-under-env (call-funexp e) env)]
+               [arg (eval-under-env (call-actual e) env)])
+           (if (closure? cl)
+               (let* ([fn (closure-fun cl)]
+                      [bodyenv (cons (cons (fun-formal fn) arg)
+                                     (closure-env cl))]
+                      [bodyenv (if (fun-nameopt fn)
+                                   (cons (cons (fun-nameopt fn) cl)
+                                         bodyenv)
+                                   bodyenv)])
+                 (eval-under-env (fun-body fn) bodyenv))
+             (error (format "MUPL call applied to non-closure: ~v" (call-funexp e)))))]
         [(apair? e)
          (let ([v1 (eval-under-env (apair-e1 e) env)]
                [v2 (eval-under-env (apair-e2 e) env)])
@@ -152,11 +146,8 @@
   (mlet "map" mupl-map
         (fun #f
              "__i"
-             (fun #f
-                  "__lst"
-                  (call
-                   (call (var "map") (fun #f "i" (add (var "i") (var "__i"))))
-                   (var "__lst"))))))
+             (call (var "map") (fun #f "__j" 
+                                    (add (var "__i") (var "__j"))))))) 
 
 ;; Challenge Problem
 

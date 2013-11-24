@@ -7,10 +7,14 @@ class MyPiece < Piece
   # The constant All_My_Pieces should be declared here
   All_My_Pieces = All_Pieces +
               # addition pieces
-              [[[[0, 0], [-2, 0], [-1, 0], [1, 0], [2, 0]], # extra long (two cases)
-              [[0, 0], [0, -2], [0, -1], [0, 1], [0, 2]]],
-              rotations([[0, 0], [1, 0], [0, 1], [1, 1], [2, 0]]),
-              rotations([[0, 0], [1, 0], [0, 1]])]
+              [
+                [
+                  [[0, 0], [-2, 0], [-1, 0], [1, 0], [2, 0]], # extra long (two cases)
+                  [[0, 0], [0, -2], [0, -1], [0, 1], [0, 2]]
+                ],
+                rotations([[0, 0], [1, 0], [0, 1], [1, 1], [2, 0]]),
+                rotations([[0, 0], [1, 0], [0, 1]])
+              ]
 
   # your enhancements here
 
@@ -57,7 +61,7 @@ class MyBoard < Board
     locations = @current_block.current_rotation
     point_count = @current_block.point_count
     displacement = @current_block.position
-    (0..point_count).each{ |index|
+    (0..(point_count-1)).each{ |index|
       current = locations[index];
       @grid[current[1]+displacement[1]][current[0]+displacement[0]] =
       @current_pos[index]

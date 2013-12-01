@@ -214,13 +214,21 @@ fun eval_prog (e,env) =
 (* CHANGE: Add function preprocess_prog of type geom_exp -> geom_exp *)
 fun preprocess_prog (exp) =
     case exp of
-	LineSegment (x1, y1, x2, y2) => if real_close_point(x1, y1)(x2, y2)
-					then Point(x1, y1)
+	LineSegment (x1, y1, x2, y2) => if real_close(x1, x2)
+					then
+					    if real_close(y1, y2)
+					    then Point(x1, y1)
+					    else
+						if y1 > y2
+						then LineSegment(x2, y2, x1, y1)
+						else exp
 					else
-					    if x1 > x2 then LineSegment(x2, y2, x1, y1)	else
-					    if real_close(x1, x2) andalso y1 > y2
+					    if x1 > x2
 					    then LineSegment(x2, y2, x1, y1)
-					    else LineSegment(x1, y1, x2, y2)
-     | _ => exp
+					    else exp
+      | Intersect(e1, e2) => Intersect(preprocess_prog e1, preprocess_prog e2)
+      | Shift(deltaX, deltaY, e) => Shift(deltaX, deltaY, preprocess_prog e)
+      | Let(s, e1, e2) => Let(s, preprocess_prog e1, preprocess_prog e2) 	 
+      | _ => exp
 					    
 							      

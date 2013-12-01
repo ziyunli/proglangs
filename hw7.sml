@@ -206,7 +206,7 @@ fun eval_prog (e,env) =
 	      | Point(x, y) => Point(x + deltaX, y + deltaY)
 	      | Line(m, b) => Line(m, b + deltaY - m * deltaX)
 	      | VerticalLine(x) => VerticalLine(x + deltaX)
-	      | LineSegment(x1, x2, y1, y2) => LineSegment(x1 + deltaX, y1 + deltaY,
+	      | LineSegment(x1, y1, x2, y2) => LineSegment(x1 + deltaX, y1 + deltaY,
 							   x2 + deltaX, y2 + deltaY)
 	      | _ => subexp_val
 	end

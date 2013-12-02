@@ -233,7 +233,7 @@ class VerticalLine < GeometryValue
     p.intersectVerticalLine self
   end
   def intersectLine l
-    l.intersectLine self
+    l.intersectVerticalLine self
   end
   def intersectVerticalLine vl
     if real_close(@x, vl.x)
@@ -243,7 +243,7 @@ class VerticalLine < GeometryValue
     end
   end
   def intersectWithSegmentAsLineResult seg
-    self
+    seg
   end
 end
 

@@ -298,7 +298,41 @@ class LineSegment < GeometryValue
     vl.intersectLineSegment self
   end
   def intersectWithSegmentAsLineResult seg
-    self
+    if real_close(seg.x1, seg.x2)
+      if seg.y1 < @y1
+        aXstart = seg.x1; aYstart = seg.y1; aXend = seg.x2; aYend = seg.y2;
+        bXstart = @x1; bYstart = @y1; bXend = @x2; bYend = @y2;
+      else
+        bXstart = seg.x1; bYstart = seg.y1; bXend = seg.x2; bYend = seg.y2;
+        aXstart = @x1; aYstart = @y1; aXend = @x2; aYend = @y2;
+      end
+      if real_close(aYend, bYstart)
+        Point.new(aXend, aYend)
+      elsif aYend < bYstart
+        NoPoints.new
+      elsif aYend > bYend
+        LineSegment.new(bXstart, bYstart, bXend, bYend)
+      else
+        LineSegment.new(bXstart, bYstart, aXend, aYend)
+      end
+    else
+      if seg.x1 < @x1
+        aXstart = seg.x1; aYstart = seg.y1; aXend = seg.x2; aYend = seg.y2;
+        bXstart = @x1; bYstart = @y1; bXend = @x2; bYend = @y2;
+      else
+        bXstart = seg.x1; bYstart = seg.y1; bXend = seg.x2; bYend = seg.y2;
+        aXstart = @x1; aYstart = @y1; aXend = @x2; aYend = @y2;
+      end
+      if real_close(aXend, bXstart)
+        Poine.new(aXend, aYend)
+      elsif aXend < bXstart
+        NoPoints.new
+      elsif aXend > bXend
+        LineSegment.new(bXstart, bYstart, bXend, bYend)
+      else
+        LineSegment.new(bXstart, bYstart, aXend, aYend)
+      end
+    end
   end
 end
 
@@ -315,7 +349,7 @@ class Intersect < GeometryExpression
     Intersect.new(@e1.preprocess_prog, @e2.preprocess_prog)
   end
   def eval_prog env
-    Intersect.new(@e1.eval_prog(env), @e2.eval_prog(env))
+    @e1.eval_prog(env).intersect @e2.eval_prog(env)
   end
 end
 

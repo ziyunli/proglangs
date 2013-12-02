@@ -206,7 +206,7 @@ class Line < GeometryValue
     Point.new(vl.x, @m * vl.x + @b)
   end
   def intersectWithSegmentAsLineResult seg
-    self
+    seg
   end
 end
 

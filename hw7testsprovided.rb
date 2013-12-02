@@ -130,7 +130,6 @@ end
 #Intersect Tests
 i = Intersect.new(LineSegment.new(-ONE,-TWO,THREE,FOUR), LineSegment.new(THREE,FOUR,-ONE,-TWO))
 i1 = i.preprocess_prog.eval_prog([])
-puts i1.class
 if not (i1.x1 == -ONE and i1.y1 == -TWO and i1.x2 == THREE and i1.y2 == FOUR)
 	puts "Intersect eval_prog should return the intersect between e1 and e2"
 end
